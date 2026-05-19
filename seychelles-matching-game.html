@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seychelles Wildlife Matching Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .column-title {
+            font-weight: bold;
+            color: #764ba2;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .creature-item, .habitat-item {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 16px;
+            user-select: none;
+        }
+        
+        .creature-item {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+        
+        .creature-item:hover {
+            background: #e0e8ff;
+            transform: translateX(5px);
+        }
+        
+        .creature-item.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .habitat-item {
+            background: #f0fff4;
+            border-color: #764ba2;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .habitat-item.matched {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .habitat-item.matched::after {
+            content: " ✓";
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .habitat-item.unmatched-attempt {
+            background: #f8d7da;
+            border-color: #dc3545;
+            animation: shake 0.3s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .btn-reset {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .btn-reset:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+        
+        .status {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #764ba2;
+            min-height: 30px;
+        }
+        
+        .completion-message {
+            text-align: center;
+            font-size: 20px;
+            color: #28a745;
+            margin-top: 20px;
+        }
+        
+        .emoji {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Seychelles Wildlife Explorer</h1>
+        <p class="subtitle">Match each creature to where it lives!</p>
+        
+        <div class="game-board">
+            <div class="column">
+                <div class="column-title">🦗 Creatures</div>
+                <div id="creatures-list"></div>
+            </div>
+            <div class="column">
+                <div class="column-title">🏝️ Islands & Habitats</div>
+                <div id="habitats-list"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-reset" id="reset-btn">Reset Game</button>
+        </div>
+        
+        <div class="status" id="status"></div>
+        <div class="completion-message" id="completion-message"></div>
+    </div>
+
+    <script>
+        const gameData = [
+            {
+                creature: '🐢 Giant Tortoise',
+                habitat: 'Aldabra Island',
+                fact: 'These enormous tortoises can live over 100 years!'
+            },
+            {
+                creature: '🥥 Coco de Mer Palm',
+                habitat: 'Praslin Island',
+                fact: 'This palm produces the largest nuts on Earth!'
+            },
+            {
+                creature: '🐦 Seychelles Magpie-Robin',
+                habitat: 'Mahé Island',
+                fact: 'One of the rarest birds in the world!'
+            },
+            {
+                creature: '🦎 Seychelles Giant Skink',
+                habitat: 'Mahé & Praslin',
+                fact: 'A massive lizard found nowhere else on Earth!'
+            },
+            {
+                creature: '🌴 Jellyfish Tree',
+                habitat: 'La Digue Island',
+                fact: 'Its fruit looks like jellyfish - very unique!'
+            }
+        ];
+
+        let selectedCreature = null;
+        let matches = {};
+        let matchedCount = 0;
+
+        function initGame() {
+            renderCreatures();
+            renderHabitats();
+            updateStatus();
+        }
+
+        function renderCreatures() {
+            const creaturesContainer = document.getElementById('creatures-list');
+            creaturesContainer.innerHTML = '';
+            
+            gameData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'creature-item';
+                div.textContent = item.creature;
+                div.dataset.index = index;
+                div.onclick = () => selectCreature(index, div);
+                creaturesContainer.appendChild(div);
+            });
+        }
+
+        function renderHabitats() {
+            const habitatsContainer = document.getElementById('habitats-list');
+            habitatsContainer.innerHTML = '';
+            
+            gameData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'habitat-item';
+                div.textContent = item.habitat;
+                div.dataset.index = index;
+                div.onclick = () => attemptMatch(index, div);
+                habitatsContainer.appendChild(div);
+            });
+        }
+
+        function selectCreature(index, element) {
+            // Remove previous selection
+            document.querySelectorAll('.creature-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Select this creature
+            element.classList.add('selected');
+            selectedCreature = index;
+        }
+
+        function attemptMatch(habitatIndex, element) {
+            if (selectedCreature === null) {
+                alert('Please select a creature first!');
+                return;
+            }
+            
+            if (matches[habitatIndex] !== undefined) {
+                alert('This habitat is already matched!');
+                return;
+            }
+
+            if (selectedCreature === habitatIndex) {
+                // Correct match!
+                matches[habitatIndex] = selectedCreature;
+                matchedCount++;
+                
+                element.classList.add('matched');
+                element.classList.remove('unmatched-attempt');
+                
+                // Deselect creature
+                document.querySelectorAll('.creature-item').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                selectedCreature = null;
+                
+                updateStatus();
+                
+                if (matchedCount === gameData.length) {
+                    showCompletion();
+                }
+            } else {
+                // Wrong match
+                element.classList.add('unmatched-attempt');
+                setTimeout(() => {
+                    element.classList.remove('unmatched-attempt');
+                }, 300);
+            }
+        }
+
+        function updateStatus() {
+            const statusEl = document.getElementById('status');
+            const remaining = gameData.length - matchedCount;
+            if (remaining > 0) {
+                statusEl.textContent = `${remaining} match${remaining !== 1 ? 'es' : ''} left!`;
+            } else {
+                statusEl.textContent = '';
+            }
+        }
+
+        function showCompletion() {
+            const completionEl = document.getElementById('completion-message');
+            completionEl.innerHTML = '🎉 Fantastic! You\'ve matched all the creatures to their homes in the Seychelles! 🎉';
+        }
+
+        document.getElementById('reset-btn').onclick = () => {
+            matches = {};
+            matchedCount = 0;
+            selectedCreature = null;
+            document.getElementById('completion-message').textContent = '';
+            renderCreatures();
+            renderHabitats();
+            updateStatus();
+        };
+
+        // Initialize on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
