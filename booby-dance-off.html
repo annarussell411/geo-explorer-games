@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🩵 Booby Dance-Off: Sexual Selection Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0066cc 0%, #00ccff 50%, #0066cc 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #e6f5ff;
+            line-height: 1.5;
+        }
+
+        .game-screen {
+            background: rgba(255, 255, 255, 0.15);
+            border: 3px solid #0099ff;
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .booby-display {
+            text-align: center;
+            margin: 30px 0;
+            animation: bounce 0.6s ease-out;
+        }
+
+        .booby {
+            font-size: 6em;
+            margin-bottom: 15px;
+        }
+
+        .feet-color {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .feet-brightness-bar {
+            background: rgba(0, 0, 0, 0.2);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            border: 2px solid #0099ff;
+        }
+
+        .feet-brightness-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ff9e64, #ffd700, #00d4ff);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        /* FISHING PHASE */
+        .fishing-zone {
+            background: linear-gradient(180deg, #003d99 0%, #0066cc 100%);
+            border: 3px solid #0099ff;
+            border-radius: 10px;
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .fish {
+            position: absolute;
+            font-size: 2em;
+            cursor: pointer;
+            animation: swim 3s linear infinite;
+            user-select: none;
+        }
+
+        @keyframes swim {
+            0% {
+                left: -50px;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .fish:hover {
+            transform: scale(1.3);
+        }
+
+        .fish.caught {
+            animation: none;
+            opacity: 0;
+        }
+
+        .fishing-ui {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+
+        .fish-counter {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .fishing-btn {
+            background: linear-gradient(135deg, #00ccff, #0099ff);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .fishing-btn:hover {
+            background: linear-gradient(135deg, #00e6ff, #00aaff);
+            transform: scale(1.05);
+        }
+
+        .fishing-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* DANCE PHASE */
+        .dance-moves-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .move-card {
+            background: rgba(0, 153, 255, 0.3);
+            border: 2px solid #0099ff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .move-card:hover {
+            background: rgba(0, 153, 255, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 153, 255, 0.4);
+        }
+
+        .move-card.selected {
+            background: linear-gradient(135deg, #00ccff, #0099ff);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.8);
+        }
+
+        .move-card.correct {
+            background: linear-gradient(135deg, #90ee90, #6ace6a);
+            border-color: #ffd700;
+            animation: correctMove 0.5s ease-out;
+        }
+
+        .move-card.incorrect {
+            background: linear-gradient(135deg, #ff6b6b, #d63031);
+            border-color: #ff0000;
+            animation: shake 0.4s ease-out;
+        }
+
+        .move-emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .move-name {
+            font-size: 1em;
+            color: #fff;
+        }
+
+        /* FEEDBACK */
+        .feedback-box {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .feedback-box.success {
+            background: rgba(144, 238, 144, 0.3);
+            border: 2px solid #90ee90;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feedback-box.fail {
+            background: rgba(255, 107, 107, 0.3);
+            border: 2px solid #ff6b6b;
+            animation: shake 0.4s ease-out;
+        }
+
+        /* JUDGE */
+        .judge-display {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 4em;
+            animation: bounce 0.8s ease-out infinite;
+        }
+
+        .judge-reaction {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 30px;
+        }
+
+        .judge-reaction.impressed {
+            color: #ffd700;
+        }
+
+        .judge-reaction.neutral {
+            color: #b0d9ff;
+        }
+
+        .judge-reaction.unimpressed {
+            color: #ff6b6b;
+        }
+
+        /* RESULTS */
+        .result-screen {
+            text-align: center;
+            background: rgba(255, 215, 0, 0.15);
+            border: 3px solid #ffd700;
+            border-radius: 12px;
+            padding: 40px;
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .result-message {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #7b8eea, #8755b2);
+            transform: scale(1.05);
+        }
+
+        .science-box {
+            background: rgba(100, 200, 255, 0.2);
+            border-left: 4px solid #64c8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 0.95em;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-10px);
+            }
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        @keyframes correctMove {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .phase-title {
+            font-size: 1.8em;
+            margin: 30px 0 20px;
+            text-align: center;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🩵 Booby Dance-Off 🩵</h1>
+            <p>Help your male booby impress a mate with the perfect dance moves and bright blue feet!</p>
+        </header>
+
+        <div class="game-screen">
+            <!-- BOOBY DISPLAY -->
+            <div class="booby-display" id="boobyDisplay">
+                <div class="booby">🐦</div>
+                <div class="feet-color" id="feetColor">Blue Feet: 0%</div>
+                <div class="feet-brightness-bar">
+                    <div class="feet-brightness-fill" id="feetBrightness" style="width: 0%;">
+                        <span id="feetPercent">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FISHING PHASE -->
+            <div id="fishingPhase">
+                <div class="phase-title">🎣 Phase 1: Catch Fish to Brighten Your Feet</div>
+                <p style="text-align: center; margin-bottom: 15px;">Brighter blue feet = healthier male! Click fish as they swim by.</p>
+                
+                <div class="fishing-zone" id="fishingZone"></div>
+                
+                <div class="fishing-ui">
+                    <div class="fish-counter">Fish Caught: <span id="fishCount">0</span>/5</div>
+                    <button class="fishing-btn" id="startDanceBtn" onclick="startDancePhase()" disabled>Move to Dance Challenge</button>
+                </div>
+
+                <div class="science-box">
+                    <strong>🔬 The Science:</strong> Blue-footed boobies get their bright blue feet color from carotenoids in the fish they eat. Healthier males catch more fresh fish and have brighter feet. Females prefer bright blue feet because it shows the male is good at finding food!
+                </div>
+            </div>
+
+            <!-- DANCE PHASE -->
+            <div id="dancePhase" class="hidden">
+                <div class="phase-title">💃 Phase 2: Master the Dance</div>
+                <p style="text-align: center; margin-bottom: 15px;">Pick the right dance moves in order. Your female judge is watching!</p>
+                
+                <div class="judge-display" id="judgeDisplay">🐦</div>
+                <div class="judge-reaction" id="judgeReaction"></div>
+
+                <div class="dance-moves-grid" id="danceMoves"></div>
+
+                <div class="feedback-box" id="feedback" style="display: none;"></div>
+            </div>
+
+            <!-- RESULTS -->
+            <div class="result-screen" id="resultScreen">
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-message" id="resultMessage"></div>
+                <button class="reset-btn" onclick="resetGame()">🔄 Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameState = {
+            fishCaught: 0,
+            maxFish: 5,
+            feetBrightness: 0,
+            currentMoveIndex: 0,
+            danceSequence: ['foot-lifting', 'sky-pointing', 'nest-building', 'bowing'],
+            movesMade: [],
+            score: 0
+        };
+
+        const moves = {
+            'foot-lifting': {
+                emoji: '👣',
+                name: 'Foot-Lifting',
+                description: 'High-step parade'
+            },
+            'sky-pointing': {
+                emoji: '⬆️',
+                name: 'Sky-Pointing',
+                description: 'Beak up, wings out!'
+            },
+            'nest-building': {
+                emoji: '🪨',
+                name: 'Symbolic Nest',
+                description: 'Pick up a pebble'
+            },
+            'bowing': {
+                emoji: '🙇',
+                name: 'Bowing & Beak-Touch',
+                description: 'Pair-bonding move'
+            }
+        };
+
+        function initGame() {
+            setupFishingZone();
+            updateFeetBrightness();
+        }
+
+        function setupFishingZone() {
+            const zone = document.getElementById('fishingZone');
+            zone.addEventListener('click', catchFish);
+
+            // Spawn fish periodically
+            setInterval(() => {
+                if (gameState.fishCaught < gameState.maxFish && !document.getElementById('dancePhase').classList.contains('hidden')) {
+                    return; // Don't spawn during dance phase
+                }
+                const fishZone = document.getElementById('fishingZone');
+                if (fishZone.offsetParent !== null) { // Only if visible
+                    const fish = document.createElement('div');
+                    fish.className = 'fish';
+                    fish.innerHTML = '🐠';
+                    fish.style.top = Math.random() * 200 + 'px';
+                    fish.style.animationDuration = (2 + Math.random() * 2) + 's';
+                    fishZone.appendChild(fish);
+
+                    setTimeout(() => {
+                        if (fish.parentNode) fish.remove();
+                    }, 4000);
+                }
+            }, 1000);
+        }
+
+        function catchFish(e) {
+            if (e.target.classList.contains('fish')) {
+                const fish = e.target;
+                fish.classList.add('caught');
+                gameState.fishCaught++;
+                gameState.feetBrightness = Math.min(100, gameState.feetBrightness + 20);
+                
+                document.getElementById('fishCount').textContent = gameState.fishCaught;
+                updateFeetBrightness();
+
+                if (gameState.fishCaught >= gameState.maxFish) {
+                    document.getElementById('startDanceBtn').disabled = false;
+                }
+            }
+        }
+
+        function updateFeetBrightness() {
+            const brightness = gameState.feetBrightness;
+            const fill = document.getElementById('feetBrightness');
+            fill.style.width = brightness + '%';
+            document.getElementById('feetPercent').textContent = brightness + '%';
+
+            // Color changes based on brightness
+            let color = '#ff6b6b'; // Red (dull)
+            if (brightness >= 25) color = '#ff9e64'; // Orange
+            if (brightness >= 50) color = '#ffd700'; // Yellow
+            if (brightness >= 75) color = '#64c8ff'; // Light blue
+            if (brightness >= 90) color = '#0099ff'; // Bright blue
+
+            document.getElementById('feetColor').textContent = `Blue Feet: ${brightness}%`;
+            document.getElementById('feetColor').style.color = color;
+        }
+
+        function startDancePhase() {
+            document.getElementById('fishingPhase').classList.add('hidden');
+            document.getElementById('dancePhase').classList.remove('hidden');
+            renderDanceMoves();
+        }
+
+        function renderDanceMoves() {
+            const grid = document.getElementById('danceMoves');
+            grid.innerHTML = Object.entries(moves).map(([key, move]) => `
+                <div class="move-card" onclick="selectMove('${key}')">
+                    <div class="move-emoji">${move.emoji}</div>
+                    <div class="move-name">${move.name}</div>
+                    <div style="font-size: 0.8em; margin-top: 5px;">${move.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectMove(moveKey) {
+            const isCorrect = moveKey === gameState.danceSequence[gameState.currentMoveIndex];
+            const feedback = document.getElementById('feedback');
+            const cards = document.querySelectorAll('.move-card');
+
+            cards.forEach(card => {
+                card.classList.remove('selected');
+                card.onclick = null;
+            });
+
+            if (isCorrect) {
+                // Correct move
+                gameState.currentMoveIndex++;
+                gameState.movesMade.push(moveKey);
+                
+                feedback.className = 'feedback-box success';
+                feedback.innerHTML = `✅ Perfect! That's the right move!`;
+                feedback.style.display = 'flex';
+
+                updateJudgeReaction('impressed');
+                gameState.score++;
+
+                if (gameState.currentMoveIndex >= gameState.danceSequence.length) {
+                    setTimeout(finishGame, 1500);
+                } else {
+                    setTimeout(renderDanceMoves, 1500);
+                }
+            } else {
+                // Wrong move
+                feedback.className = 'feedback-box fail';
+                feedback.innerHTML = `❌ Not quite right. The next move is: ${moves[gameState.danceSequence[gameState.currentMoveIndex]].name}`;
+                feedback.style.display = 'flex';
+
+                updateJudgeReaction('unimpressed');
+
+                setTimeout(() => {
+                    feedback.style.display = 'none';
+                    renderDanceMoves();
+                }, 2000);
+            }
+        }
+
+        function updateJudgeReaction(reaction) {
+            const reactionBox = document.getElementById('judgeReaction');
+            if (reaction === 'impressed') {
+                reactionBox.className = 'judge-reaction impressed';
+                reactionBox.textContent = '🎉 She loves it!';
+            } else if (reaction === 'unimpressed') {
+                reactionBox.className = 'judge-reaction unimpressed';
+                reactionBox.textContent = '😕 She\'s not impressed...';
+            } else {
+                reactionBox.className = 'judge-reaction neutral';
+                reactionBox.textContent = '🤔 She\'s watching...';
+            }
+        }
+
+        function finishGame() {
+            document.getElementById('dancePhase').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('show');
+
+            const brightnessFactor = gameState.feetBrightness / 100;
+            const perfectionFactor = gameState.score / gameState.danceSequence.length;
+            const finalScore = Math.round((brightnessFactor + perfectionFactor) / 2 * 100);
+
+            document.getElementById('resultTitle').textContent = finalScore >= 75 ? '🎉 SUCCESS!' : '💔 She Didn\'t Fall for It';
+
+            let resultMessage = '';
+            if (finalScore >= 90) {
+                resultMessage = `Brilliant! She's impressed by your bright blue feet (${gameState.feetBrightness}% bright) and your perfect dance moves! They're now bonded and will build a nest together.`;
+            } else if (finalScore >= 75) {
+                resultMessage = `Good job! Your dance was smooth and your feet were pretty bright. She's interested! Next time, catch more fish to make your feet even brighter.`;
+            } else if (finalScore >= 50) {
+                resultMessage = `Not bad! You got some moves right, but your feet weren't quite bright enough. Catch more fish and practice the dance sequence!`;
+            } else {
+                resultMessage = `Keep trying! The dance takes practice, and those feet need more carotenoid-rich fish to shine. Want to give it another go?`;
+            }
+
+            resultMessage += `<br><br><strong>Final Score:</strong> ${finalScore}%<br><strong>Blue Feet Brightness:</strong> ${gameState.feetBrightness}%<br><strong>Dance Moves Correct:</strong> ${gameState.score}/${gameState.danceSequence.length}`;
+
+            document.getElementById('resultMessage').innerHTML = resultMessage;
+        }
+
+        function resetGame() {
+            gameState.fishCaught = 0;
+            gameState.feetBrightness = 0;
+            gameState.currentMoveIndex = 0;
+            gameState.movesMade = [];
+            gameState.score = 0;
+
+            document.getElementById('fishCount').textContent = '0';
+            document.getElementById('startDanceBtn').disabled = true;
+            document.getElementById('fishingPhase').classList.remove('hidden');
+            document.getElementById('dancePhase').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('show');
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('judgeReaction').innerHTML = '';
+
+            updateFeetBrightness();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
