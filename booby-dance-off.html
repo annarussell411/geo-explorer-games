@@ -95,26 +95,27 @@
             background: linear-gradient(180deg, #003d99 0%, #0066cc 100%);
             border: 3px solid #0099ff;
             border-radius: 10px;
-            height: 250px;
+            height: 280px;
             position: relative;
             overflow: hidden;
             margin: 20px 0;
-            cursor: pointer;
+            cursor: crosshair;
         }
 
         .fish {
             position: absolute;
-            font-size: 3em;
+            font-size: 4em;
             cursor: pointer;
-            animation: swim 5s linear infinite;
+            animation: swim 6s linear infinite;
             user-select: none;
             padding: 15px;
             transition: transform 0.1s ease;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
         }
 
         @keyframes swim {
             0% {
-                left: -80px;
+                left: -100px;
             }
             100% {
                 left: 100%;
@@ -513,8 +514,8 @@
                     const fish = document.createElement('div');
                     fish.className = 'fish';
                     fish.innerHTML = '🐠';
-                    fish.style.top = Math.random() * 200 + 'px';
-                    fish.style.animationDuration = (4.5 + Math.random() * 1.5) + 's';
+                    fish.style.top = Math.random() * 230 + 'px';
+                    fish.style.animationDuration = (5.5 + Math.random() * 1) + 's';
                     fishZone.appendChild(fish);
 
                     setTimeout(() => {
@@ -529,7 +530,7 @@
                 const fish = e.target;
                 fish.classList.add('caught');
                 gameState.fishCaught++;
-                gameState.feetBrightness = Math.min(100, gameState.feetBrightness + 20);
+                gameState.feetBrightness = Math.min(100, gameState.feetBrightness + 25);
                 
                 document.getElementById('fishCount').textContent = gameState.fishCaught;
                 updateFeetBrightness();
