@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐦 Darwin's Finches: Evolution in Action</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a3d 50%, #1a472a 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #b0e0a0;
+            line-height: 1.5;
+        }
+
+        .story-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #ffd700;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            line-height: 1.7;
+            font-size: 0.95em;
+        }
+
+        .challenge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #4ae96e;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .challenge h2 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .food-card {
+            background: linear-gradient(135deg, #ff9a56, #ff7d3d);
+            border: 2px solid #ff6b00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .food-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(255, 107, 0, 0.4);
+        }
+
+        .food-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .food-card p {
+            font-size: 0.9em;
+            color: #fff;
+        }
+
+        .beaks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .beak-option {
+            background: rgba(74, 233, 110, 0.2);
+            border: 2px solid #4ae96e;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .beak-option:hover {
+            background: rgba(74, 233, 110, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .beak-option.selected {
+            background: linear-gradient(135deg, #4ae96e, #2ac850);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(74, 233, 110, 0.6);
+        }
+
+        .beak-option.correct {
+            background: linear-gradient(135deg, #90ee90, #6ace6a);
+            border-color: #ffd700;
+            animation: pulse 0.5s ease-out;
+        }
+
+        .beak-option.incorrect {
+            background: linear-gradient(135deg, #ff6b6b, #d63031);
+            border-color: #ff0000;
+        }
+
+        .beak-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            border: none;
+            color: #1a472a;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .check-btn:hover {
+            background: linear-gradient(135deg, #ffe024, #ffc700);
+            transform: scale(1.02);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(144, 238, 144, 0.3);
+            border-left: 4px solid #90ee90;
+        }
+
+        .feedback.incorrect {
+            background: rgba(255, 107, 107, 0.3);
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .fact-box {
+            background: rgba(100, 200, 255, 0.2);
+            border-left: 4px solid #64c8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            background: rgba(0, 0, 0, 0.3);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4ae96e, #ffd700);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .score-section {
+            background: rgba(255, 215, 0, 0.15);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .score-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .score-text {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #7b8eea, #8755b2);
+            transform: scale(1.05);
+        }
+
+        .finish-message {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐦 Darwin's Finches 🐦</h1>
+            <p>Evolution in Action on the Galápagos</p>
+        </header>
+
+        <div class="story-box">
+            <strong>The Story:</strong> Over 4 million years ago, finches from South America landed on the Galápagos islands. With no competition, they spread across the islands and adapted to different foods. One ancestor became 18 different species—each with a beak shaped perfectly for what it eats. That's evolution in real time! 🌋
+        </div>
+
+        <div class="progress">
+            <div><strong>Progress: <span id="currentChallenge">1</span>/4</strong></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;">
+                    <span id="progressPercent"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameContainer"></div>
+
+        <div id="scoreScreen" class="hidden">
+            <div class="score-section">
+                <h3>🏆 YOU'VE COMPLETED THE CHALLENGE!</h3>
+                <div class="score-text"><span id="finalScore">0</span>/4</div>
+                <div class="finish-message" id="finishMessage"></div>
+                <button class="reset-btn" onclick="resetGame()">🔄 Play Again</button>
+            </div>
+
+            <div class="challenge" style="border-color: #90ee90; margin-top: 30px;">
+                <h2>🧠 The Big Idea: Adaptation</h2>
+                <p>Darwin's finches show us that when creatures face different challenges, they change over many generations. On islands with hard seeds, birds with thick, strong beaks survived. On islands with delicate flowers, birds with long, thin beaks thrived. Nature doesn't change a creature on purpose—but the creatures best suited to their island survived and had babies. That's natural selection, and it's how one finch ancestor became 18 different species!</p>
+                <div class="fact-box" style="margin-top: 20px;">
+                    <strong>🧛‍♂️ Vampire Finch:</strong> One finch species is so weird it drinks blood from other birds. It uses its pointy beak to peck at booby birds and sip their blood. Evolution is wild!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const challenges = [
+            {
+                food: "Hard Seeds",
+                emoji: "💎",
+                description: "Tough seeds are hard to crack!",
+                beaks: [
+                    { name: "Thick, Strong Beak", emoji: "🐦", correct: true, fact: "Strong beak muscles crush hard seeds—like a nutcracker!" },
+                    { name: "Long, Thin Beak", emoji: "🦅", correct: false, fact: "This beak is perfect for insects, not seeds." },
+                    { name: "Curved Beak", emoji: "🦜", correct: false, fact: "Great for fruits, but not hard seeds." }
+                ]
+            },
+            {
+                food: "Tiny Insects",
+                emoji: "🐛",
+                description: "Small bugs hide in crevices.",
+                beaks: [
+                    { name: "Long, Thin Beak", emoji: "🦅", correct: true, fact: "A long, pointy beak can probe into bark and reach hiding insects." },
+                    { name: "Thick, Strong Beak", emoji: "🐦", correct: false, fact: "Too big and clumsy for tiny insects." },
+                    { name: "Short, Stubby Beak", emoji: "🦆", correct: false, fact: "Not long enough to reach insects in crevices." }
+                ]
+            },
+            {
+                food: "Cactus Flowers",
+                emoji: "🌵",
+                description: "Delicate flowers need a gentle touch.",
+                beaks: [
+                    { name: "Curved, Pointed Beak", emoji: "🦜", correct: true, fact: "A curved beak gently picks delicate cactus flowers without damaging them." },
+                    { name: "Thick, Strong Beak", emoji: "🐦", correct: false, fact: "Way too strong—it would crush the flowers!" },
+                    { name: "Short, Flat Beak", emoji: "🦆", correct: false, fact: "Not flexible enough for flowers." }
+                ]
+            },
+            {
+                food: "Fish (from shallow waters)",
+                emoji: "🐠",
+                description: "Quick reflexes needed!",
+                beaks: [
+                    { name: "Sharp, Pointed Beak", emoji: "🦅", correct: true, fact: "Sharp and pointy—perfect for catching slippery fish!" },
+                    { name: "Thick, Crushing Beak", emoji: "🐦", correct: false, fact: "Made for seeds, not catching slippery fish." },
+                    { name: "Short, Curved Beak", emoji: "🦜", correct: false, fact: "Better for flowers than fish." }
+                ]
+            }
+        ];
+
+        let currentChallenge = 0;
+        let score = 0;
+        let answered = false;
+
+        function initGame() {
+            renderChallenge();
+        }
+
+        function renderChallenge() {
+            if (currentChallenge >= challenges.length) {
+                showScore();
+                return;
+            }
+
+            const challenge = challenges[currentChallenge];
+            const gameContainer = document.getElementById('gameContainer');
+            
+            let beakHTML = challenge.beaks.map((beak, index) => `
+                <div class="beak-option" onclick="selectBeak(${index})">
+                    <div class="beak-emoji">${beak.emoji}</div>
+                    <div>${beak.name}</div>
+                </div>
+            `).join('');
+
+            gameContainer.innerHTML = `
+                <div class="challenge">
+                    <h2>${challenge.emoji} Challenge: ${challenge.food}</h2>
+                    <p style="margin-bottom: 15px; font-size: 1.05em;">${challenge.description}</p>
+                    <p style="margin-bottom: 20px; color: #b0e0a0;">Which finch beak would work best for this food?</p>
+                    
+                    <div class="beaks-grid">
+                        ${beakHTML}
+                    </div>
+
+                    <button class="check-btn" id="checkBtn" onclick="checkAnswer()" disabled>Check Your Answer</button>
+
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            `;
+
+            answered = false;
+            document.getElementById('checkBtn').disabled = true;
+        }
+
+        function selectBeak(index) {
+            document.querySelectorAll('.beak-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === index);
+            });
+            document.getElementById('checkBtn').disabled = false;
+            window.selectedBeak = index;
+        }
+
+        function checkAnswer() {
+            if (answered || window.selectedBeak === undefined) return;
+
+            answered = true;
+            const challenge = challenges[currentChallenge];
+            const selected = challenge.beaks[window.selectedBeak];
+            const isCorrect = selected.correct;
+
+            const feedbackDiv = document.getElementById('feedback');
+            const beakOptions = document.querySelectorAll('.beak-option');
+
+            // Find correct answer for display
+            challenge.beaks.forEach((beak, index) => {
+                if (beak.correct) {
+                    beakOptions[index].classList.add('correct');
+                } else if (index === window.selectedBeak && !isCorrect) {
+                    beakOptions[index].classList.add('incorrect');
+                }
+            });
+
+            if (isCorrect) {
+                score++;
+                feedbackDiv.className = 'feedback show correct';
+                feedbackDiv.innerHTML = `
+                    <div style="font-size: 1.2em; margin-bottom: 10px;">✅ Correct!</div>
+                    <div class="fact-box">
+                        <strong>Why?</strong> ${selected.fact}
+                    </div>
+                `;
+            } else {
+                const correct = challenge.beaks.find(b => b.correct);
+                feedbackDiv.className = 'feedback show incorrect';
+                feedbackDiv.innerHTML = `
+                    <div style="font-size: 1.2em; margin-bottom: 10px;">❌ Not quite!</div>
+                    <div class="fact-box">
+                        <strong>The answer is:</strong> ${correct.name}<br>
+                        <strong>Why?</strong> ${correct.fact}
+                    </div>
+                `;
+            }
+
+            updateProgress();
+
+            // Auto advance after 2 seconds
+            setTimeout(() => {
+                currentChallenge++;
+                document.getElementById('currentChallenge').textContent = Math.min(currentChallenge + 1, challenges.length);
+                if (currentChallenge < challenges.length) {
+                    renderChallenge();
+                } else {
+                    showScore();
+                }
+            }, 2500);
+        }
+
+        function updateProgress() {
+            const percent = ((currentChallenge + 1) / challenges.length) * 100;
+            const fill = document.getElementById('progressFill');
+            fill.style.width = percent + '%';
+            fill.innerHTML = `<span id="progressPercent">${Math.round(percent)}%</span>`;
+        }
+
+        function showScore() {
+            document.getElementById('gameContainer').classList.add('hidden');
+            document.getElementById('scoreScreen').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = score;
+
+            let message = '';
+            if (score === 4) {
+                message = "🏆 Perfect! You're a finch evolution expert! You understand adaptation like Darwin himself!";
+            } else if (score === 3) {
+                message = "💪 Excellent work! You understand how beaks adapt to food. Evolution expert in training!";
+            } else if (score === 2) {
+                message = "🌍 Good effort! You're learning about adaptation. Keep exploring!";
+            } else {
+                message = "🐦 Nice try! Evolution takes time—so does learning about it. Play again!";
+            }
+            document.getElementById('finishMessage').textContent = message;
+        }
+
+        function resetGame() {
+            currentChallenge = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('gameContainer').classList.remove('hidden');
+            document.getElementById('scoreScreen').classList.add('hidden');
+            document.getElementById('currentChallenge').textContent = '1';
+            document.getElementById('progressFill').style.width = '0%';
+            renderChallenge();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
