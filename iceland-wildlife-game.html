@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌋 Iceland's Mystery Wildlife 🌋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 50%, #1a3a52 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #b0d9ff;
+        }
+
+        .encounter {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #4a9eff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .encounter h2 {
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .clue-container {
+            margin: 15px 0;
+        }
+
+        .clue-button {
+            background: linear-gradient(135deg, #4a9eff, #2a7fd9);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .clue-button:hover {
+            background: linear-gradient(135deg, #5aafff, #3a8fe9);
+            transform: translateX(5px);
+        }
+
+        .clue-button.revealed {
+            background: linear-gradient(135deg, #90ee90, #6ace6a);
+        }
+
+        .clue-text {
+            display: none;
+            background: rgba(74, 158, 255, 0.2);
+            padding: 12px;
+            margin-top: 5px;
+            border-left: 4px solid #ffd700;
+            border-radius: 4px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .clue-text.show {
+            display: block;
+        }
+
+        .answer-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, #ff6b6b, #d63031);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .reveal-btn:hover {
+            background: linear-gradient(135deg, #ff7f7f, #e54040);
+            transform: scale(1.02);
+        }
+
+        .reveal-btn.revealed {
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            color: #1a3a52;
+        }
+
+        .answer-text {
+            display: none;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+            animation: popup 0.4s ease-out;
+        }
+
+        .answer-text.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes popup {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .score-section {
+            background: rgba(255, 215, 0, 0.15);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .score-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .score-text {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .bonus-fact {
+            background: rgba(144, 238, 144, 0.15);
+            border: 2px solid #90ee90;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #7b8eea, #8755b2);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌋 Iceland's Mystery Wildlife 🌋</h1>
+            <p>An Interactive Exploration Adventure</p>
+        </header>
+
+        <div id="encounters"></div>
+
+        <div class="score-section">
+            <h3>📊 YOUR SCORE</h3>
+            <div class="score-text"><span id="score">0</span>/5</div>
+            <div id="scoreMessage">Start revealing answers to see your score!</div>
+            <button class="reset-btn" onclick="resetGame()">🔄 Play Again</button>
+        </div>
+
+        <div class="encounter" style="border-color: #90ee90; margin-top: 30px;">
+            <h2>🏆 BONUS FACT</h2>
+            <div class="bonus-fact">
+                The animals you just met all share one superpower—<strong>adaptation</strong>. Puffins can dive 200 feet deep. Arctic foxes can hear a mouse under the snow from 100 feet away. Seals hold their breath for up to 30 minutes. Iceland's wildlife doesn't just survive; it <em>thrives</em> in one of Earth's harshest environments.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const animals = [
+            {
+                title: "The Cliff Dweller",
+                emoji: "🤔",
+                clues: [
+                    "I come in the millions to Iceland every spring. My home? Volcanic cliffs and sea stacks.",
+                    "I have a bright orange beak and fancy black-and-white tuxedo. Very dapper.",
+                    "I spend most of my time in the water hunting fish, but I'm famous for looking adorably clumsy on land."
+                ],
+                answer: "🐧 A PUFFIN!"
+            },
+            {
+                title: "The Ice Fox",
+                emoji: "🤔",
+                clues: [
+                    "I'm one of Iceland's only native land mammals. I've lived here for thousands of years—even before humans arrived.",
+                    "My fur changes color with the seasons. In winter, I'm pure white to blend with snow. In summer, I'm brown or blue-gray.",
+                    "I'm small and sneaky, with big ears and a fluffy tail. I hunt birds, fish, and whatever scraps I can find in this harsh land."
+                ],
+                answer: "🦊 AN ARCTIC FOX!"
+            },
+            {
+                title: "The Whiskered Swimmer",
+                emoji: "🤔",
+                clues: [
+                    "I'm a marine mammal with long whiskers—basically the underwater cousin of a cat, except way more chill about the cold.",
+                    "I hunt fish and squid in Iceland's icy waters. You might spot me hauling out on rocks to rest in the sun.",
+                    "My thick fur and blubber keep me toasty in near-freezing water. I'm basically wearing a built-in wetsuit."
+                ],
+                answer: "🦭 A SEAL!"
+            },
+            {
+                title: "The Deep Diver",
+                emoji: "🤔",
+                clues: [
+                    "I'm HUGE—one of the biggest animals on Earth. My heart alone weighs as much as a car.",
+                    "I travel to Iceland's waters every summer to eat. I can eat up to 4 tons of tiny krill in a single day.",
+                    "I'm a gentle giant despite my size. I sing hauntingly beautiful songs that travel for miles underwater."
+                ],
+                answer: "🐋 A WHALE!"
+            },
+            {
+                title: "The Dark Sky Hunter",
+                emoji: "🤔",
+                clues: [
+                    "I'm all black except for my sharp, intelligent eyes. Icelanders consider me a symbol of the land itself.",
+                    "I'm incredibly smart—I can solve puzzles, remember faces, and even use tools.",
+                    "I eat almost anything: berries, insects, small birds, and yes, carrion. I'm the ultimate survivor in a harsh landscape."
+                ],
+                answer: "🐦‍⬛ A RAVEN!"
+            }
+        ];
+
+        function createEncounterHTML(animal, index) {
+            const clueButtons = animal.clues.map((clue, clueIndex) => `
+                <button class="clue-button" onclick="revealClue(${index}, ${clueIndex})">
+                    Clue ${clueIndex + 1}
+                </button>
+                <div class="clue-text" id="clue-${index}-${clueIndex}">
+                    ${clue}
+                </div>
+            `).join('');
+
+            return `
+                <div class="encounter">
+                    <h2>${animal.emoji} ${animal.title}</h2>
+                    <div class="clue-container">
+                        ${clueButtons}
+                    </div>
+                    <div class="answer-section">
+                        <button class="reveal-btn" onclick="revealAnswer(${index})">
+                            Who am I?
+                        </button>
+                        <div class="answer-text" id="answer-${index}">
+                            ${animal.answer}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initGame() {
+            const encountersDiv = document.getElementById('encounters');
+            encountersDiv.innerHTML = animals.map((animal, index) => createEncounterHTML(animal, index)).join('');
+        }
+
+        function revealClue(animalIndex, clueIndex) {
+            const clueElement = document.getElementById(`clue-${animalIndex}-${clueIndex}`);
+            const button = event.target;
+            clueElement.classList.add('show');
+            button.classList.add('revealed');
+            button.disabled = true;
+        }
+
+        function revealAnswer(animalIndex) {
+            const answerElement = document.getElementById(`answer-${animalIndex}`);
+            const button = event.target;
+            answerElement.classList.add('show');
+            button.classList.add('revealed');
+            button.disabled = true;
+            updateScore();
+        }
+
+        function updateScore() {
+            const revealedAnswers = document.querySelectorAll('.answer-text.show').length;
+            document.getElementById('score').textContent = revealedAnswers;
+
+            const scoreMessage = document.getElementById('scoreMessage');
+            if (revealedAnswers === 0) {
+                scoreMessage.textContent = 'Start revealing answers to see your score!';
+            } else if (revealedAnswers === 5) {
+                scoreMessage.innerHTML = "<strong>🎯 You're an Iceland wildlife expert!</strong> You could guide tours.";
+            } else if (revealedAnswers >= 3) {
+                scoreMessage.innerHTML = "<strong>💪 Strong work!</strong> You know your stuff about Arctic survivors.";
+            } else {
+                scoreMessage.innerHTML = "<strong>🌍 Not bad!</strong> You've met Iceland's famous animals!";
+            }
+        }
+
+        function resetGame() {
+            location.reload();
+        }
+
+        // Initialize game on page load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
