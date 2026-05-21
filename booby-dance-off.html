@@ -671,6 +671,10 @@
             document.getElementById('resultScreen').classList.remove('show');
             document.getElementById('feedback').style.display = 'none';
             document.getElementById('judgeReaction').innerHTML = '';
+            
+            // Clear any remaining fish from the zone
+            const fishZone = document.getElementById('fishingZone');
+            fishZone.innerHTML = '';
 
             updateFeetBrightness();
         }
