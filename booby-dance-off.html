@@ -430,7 +430,7 @@
                 <div class="fishing-zone" id="fishingZone"></div>
                 
                 <div class="fishing-ui">
-                    <div class="fish-counter">Fish Caught: <span id="fishCount">0</span>/5</div>
+                    <div class="fish-counter">Fish Caught: <span id="fishCount">0</span>/4</div>
                     <button class="fishing-btn" id="startDanceBtn" onclick="startDancePhase()" disabled>Move to Dance Challenge</button>
                 </div>
 
@@ -444,7 +444,10 @@
                 <div class="phase-title">💃 Phase 2: Master the Dance</div>
                 <p style="text-align: center; margin-bottom: 15px;">Pick the right dance moves in order. Your female judge is watching!</p>
                 
+                <div style="text-align: center; margin: 15px 0; font-weight: bold;">Attempts Left: <span id="staminaCount">3</span>/3</div>
+                
                 <div class="judge-display" id="judgeDisplay">🐦</div>
+                <div id="judgeBodyLanguage" style="font-size: 1.5em; text-align: center; min-height: 30px; margin: 10px 0;"></div>
                 <div class="judge-reaction" id="judgeReaction"></div>
 
                 <div class="dance-moves-grid" id="danceMoves"></div>
@@ -464,12 +467,16 @@
     <script>
         const gameState = {
             fishCaught: 0,
-            maxFish: 5,
+            maxFish: 4,
             feetBrightness: 0,
             currentMoveIndex: 0,
             danceSequence: ['foot-lifting', 'sky-pointing', 'nest-building', 'bowing'],
             movesMade: [],
-            score: 0
+            score: 0,
+            stamina: 3,
+            staminaUsed: 0,
+            depletionInterval: null,
+            judgeBodyLanguage: 'neutral'
         };
 
         const moves = {
@@ -561,7 +568,24 @@
         function startDancePhase() {
             document.getElementById('fishingPhase').classList.add('hidden');
             document.getElementById('dancePhase').classList.remove('hidden');
+            gameState.stamina = 3;
+            gameState.staminaUsed = 0;
+            document.getElementById('staminaCount').textContent = '3';
+            updateJudgeReaction('neutral');
+            startFeetDepletion();
             renderDanceMoves();
+        }
+
+        function startFeetDepletion() {
+            if (gameState.depletionInterval) clearInterval(gameState.depletionInterval);
+            gameState.depletionInterval = setInterval(() => {
+                gameState.feetBrightness = Math.max(0, gameState.feetBrightness - 2);
+                updateFeetBrightness();
+            }, 800);
+        }
+
+        function stopFeetDepletion() {
+            if (gameState.depletionInterval) clearInterval(gameState.depletionInterval);
         }
 
         function renderDanceMoves() {
@@ -595,25 +619,62 @@
                 feedback.style.display = 'flex';
 
                 updateJudgeReaction('impressed');
+                gameState.judgeBodyLanguage = 'toward';
+                updateJudgeBodyLanguage();
                 gameState.score++;
 
                 if (gameState.currentMoveIndex >= gameState.danceSequence.length) {
-                    setTimeout(finishGame, 1500);
+                    setTimeout(() => {
+                        stopFeetDepletion();
+                        finishGame();
+                    }, 1500);
                 } else {
                     setTimeout(renderDanceMoves, 1500);
                 }
             } else {
-                // Wrong move
+                // Wrong move - use stamina
+                gameState.staminaUsed++;
+                gameState.stamina--;
+                
                 feedback.className = 'feedback-box fail';
                 feedback.innerHTML = `❌ Not quite right. The next move is: ${moves[gameState.danceSequence[gameState.currentMoveIndex]].name}`;
                 feedback.style.display = 'flex';
 
                 updateJudgeReaction('unimpressed');
+                gameState.judgeBodyLanguage = 'away';
+                updateJudgeBodyLanguage();
+                
+                document.getElementById('staminaCount').textContent = gameState.stamina;
 
-                setTimeout(() => {
-                    feedback.style.display = 'none';
-                    renderDanceMoves();
-                }, 2000);
+                if (gameState.stamina <= 0) {
+                    // Out of stamina - game over
+                    setTimeout(() => {
+                        stopFeetDepletion();
+                        finishGame();
+                    }, 2000);
+                } else {
+                    // Reset to beginning of sequence
+                    gameState.currentMoveIndex = 0;
+                    gameState.movesMade = [];
+                    gameState.score = 0;
+                    setTimeout(() => {
+                        feedback.style.display = 'none';
+                        renderDanceMoves();
+                    }, 2000);
+                }
+            }
+        }
+
+        function updateJudgeBodyLanguage() {
+            const bodyDisplay = document.getElementById('judgeBodyLanguage');
+            if (gameState.judgeBodyLanguage === 'toward') {
+                bodyDisplay.textContent = '⬅️ Turning toward you!';
+                bodyDisplay.style.color = '#90ee90';
+            } else if (gameState.judgeBodyLanguage === 'away') {
+                bodyDisplay.textContent = 'Turning away... ➡️';
+                bodyDisplay.style.color = '#ff6b6b';
+            } else {
+                bodyDisplay.textContent = '';
             }
         }
 
@@ -635,37 +696,61 @@
             document.getElementById('dancePhase').classList.add('hidden');
             document.getElementById('resultScreen').classList.add('show');
 
-            const brightnessFactor = gameState.feetBrightness / 100;
-            const perfectionFactor = gameState.score / gameState.danceSequence.length;
-            const finalScore = Math.round((brightnessFactor + perfectionFactor) / 2 * 100);
+            // Check if they ran out of stamina
+            const ranOutOfStamina = gameState.stamina <= 0;
+            const danceSuccessful = gameState.currentMoveIndex >= gameState.danceSequence.length;
 
-            document.getElementById('resultTitle').textContent = finalScore >= 75 ? '🎉 SUCCESS!' : '💔 She Didn\'t Fall for It';
-
-            let resultMessage = '';
-            if (finalScore >= 90) {
-                resultMessage = `Brilliant! She's impressed by your bright blue feet (${gameState.feetBrightness}% bright) and your perfect dance moves! They're now bonded and will build a nest together.`;
-            } else if (finalScore >= 75) {
-                resultMessage = `Good job! Your dance was smooth and your feet were pretty bright. She's interested! Next time, catch more fish to make your feet even brighter.`;
-            } else if (finalScore >= 50) {
-                resultMessage = `Not bad! You got some moves right, but your feet weren't quite bright enough. Catch more fish and practice the dance sequence!`;
+            let finalScore = 0;
+            if (danceSuccessful) {
+                const brightnessFactor = gameState.feetBrightness / 100;
+                const staminaFactor = (3 - gameState.staminaUsed) / 3;
+                finalScore = Math.round((brightnessFactor + staminaFactor) / 2 * 100);
             } else {
-                resultMessage = `Keep trying! The dance takes practice, and those feet need more carotenoid-rich fish to shine. Want to give it another go?`;
+                finalScore = Math.round((gameState.feetBrightness / 100) * 30); // Reduced score if dance failed
             }
 
-            resultMessage += `<br><br><strong>Final Score:</strong> ${finalScore}%<br><strong>Blue Feet Brightness:</strong> ${gameState.feetBrightness}%<br><strong>Dance Moves Correct:</strong> ${gameState.score}/${gameState.danceSequence.length}`;
+            let titleText = '';
+            let resultMessage = '';
 
+            if (danceSuccessful && finalScore >= 75) {
+                titleText = '🎉 SUCCESS!';
+                if (finalScore >= 90) {
+                    resultMessage = `Brilliant! She's impressed by your bright blue feet (${gameState.feetBrightness}% bright) and your perfect dance moves! They're now bonded and will build a nest together.`;
+                } else {
+                    resultMessage = `Great job! Your dance was smooth and your feet were pretty bright. She's interested! Next time, catch more fish to make your feet even brighter.`;
+                }
+            } else if (danceSuccessful) {
+                titleText = '💯 Good Try!';
+                resultMessage = `Not bad! You got the dance right, but your feet weren't quite bright enough. Catch more fish for the next performance!`;
+            } else if (ranOutOfStamina) {
+                titleText = '💔 Out of Stamina!';
+                resultMessage = `The dance sequence is tricky! You ran out of attempts before getting it right. Catch more fish and try again—she loves persistence!`;
+            } else {
+                titleText = '💔 She Didn\'t Fall for It';
+                resultMessage = `Keep trying! The dance takes practice. Want to give it another go?`;
+            }
+
+            resultMessage += `<br><br><strong>Final Score:</strong> ${finalScore}%<br><strong>Blue Feet Brightness:</strong> ${gameState.feetBrightness}%<br><strong>Dance Completed:</strong> ${danceSuccessful ? 'Yes!' : 'No - out of attempts'}<br><strong>Attempts Used:</strong> ${gameState.staminaUsed}/3`;
+
+            document.getElementById('resultTitle').textContent = titleText;
             document.getElementById('resultMessage').innerHTML = resultMessage;
         }
 
         function resetGame() {
+            stopFeetDepletion();
             gameState.fishCaught = 0;
             gameState.feetBrightness = 0;
             gameState.currentMoveIndex = 0;
             gameState.movesMade = [];
             gameState.score = 0;
+            gameState.stamina = 3;
+            gameState.staminaUsed = 0;
+            gameState.judgeBodyLanguage = 'neutral';
 
             document.getElementById('fishCount').textContent = '0';
+            document.getElementById('staminaCount').textContent = '3';
             document.getElementById('startDanceBtn').disabled = true;
+            document.getElementById('judgeBodyLanguage').textContent = '';
             document.getElementById('fishingPhase').classList.remove('hidden');
             document.getElementById('dancePhase').classList.add('hidden');
             document.getElementById('resultScreen').classList.remove('show');
