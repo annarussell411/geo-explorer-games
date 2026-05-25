@@ -415,7 +415,7 @@
             currentClueIndex = 0;
             const animal = animals[currentAnimalIndex];
             
-            document.getElementById('animalEmoji').textContent = animal.emoji;
+            // Keep forest emoji - don't reveal the animal
             document.getElementById('animalDisplay').textContent = `${currentAnimalIndex + 1} / 5`;
             document.getElementById('statusDisplay').textContent = '🎮';
             document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
