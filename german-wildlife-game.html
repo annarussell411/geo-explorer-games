@@ -107,13 +107,11 @@
             border-left: 4px solid #4caf50;
             border-radius: 4px;
             margin-bottom: 15px;
+            display: none;
         }
 
-        .clue-text.hidden {
-            background: #f5f5f5;
-            color: #999;
-            font-style: italic;
-            border-left-color: #ccc;
+        .clue-text.active {
+            display: block;
         }
 
         .hint-button {
@@ -312,7 +310,7 @@
         <!-- Game Section -->
         <div class="game-section active" id="gameSection">
             <div class="animal-card">
-                <div class="animal-emoji" id="animalEmoji">🐺</div>
+                <div class="animal-emoji" id="animalEmoji">🌲</div>
                 <div id="cluesContainer"></div>
                 <button class="hint-button" id="hintBtn" onclick="showHint()">Show Next Hint</button>
                 <button class="hint-button" id="giveUpBtn" onclick="giveUp()" style="background: #2196f3;">Give Up</button>
@@ -436,7 +434,7 @@
             
             animal.clues.forEach((clue, index) => {
                 const clueDiv = document.createElement('div');
-                clueDiv.className = `clue-text ${index > currentClueIndex ? 'hidden' : ''}`;
+                clueDiv.className = `clue-text ${index === currentClueIndex ? 'active' : ''}`;
                 clueDiv.textContent = clue;
                 cluesContainer.appendChild(clueDiv);
             });
