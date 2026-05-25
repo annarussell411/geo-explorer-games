@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Germany's Wildlife Comeback</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3d5a6c 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .intro {
+            background: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .game-section {
+            display: none;
+        }
+        
+        .game-section.active {
+            display: block;
+        }
+        
+        .animal-card {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .animal-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+        
+        .animal-name {
+            font-size: 22px;
+            margin-bottom: 15px;
+            text-align: center;
+            min-height: 30px;
+        }
+        
+        .clue-number {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .clue {
+            background: white;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .clue.hidden {
+            background: #e8e8e8;
+            color: #999;
+            border-left-color: #ccc;
+        }
+        
+        .guess-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .guess-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .guess-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .guess-btn.correct {
+            background: #27ae60;
+        }
+        
+        .guess-btn.wrong {
+            background: #e74c3c;
+        }
+        
+        .next-clue-btn {
+            background: #9b59b6;
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .next-clue-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .next-btn {
+            background: #2ecc71;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+        }
+        
+        .next-btn:hover {
+            background: #27ae60;
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        .feedback.correct {
+            color: #27ae60;
+        }
+        
+        .feedback.wrong {
+            color: #e74c3c;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .results {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+        
+        .results h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .results-score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .results-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .reset-btn {
+            background: white;
+            color: #27ae60;
+            margin-top: 20px;
+        }
+        
+        .reset-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .info-box {
+            background: #fffacd;
+            border-left: 4px solid #f39c12;
+            padding: 12px 15px;
+            border-radius: 3px;
+            margin-top: 15px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .emoji {
+            font-size: 32px;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 22px;
+            }
+            
+            .guess-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🐺 Germany's Wildlife Comeback 🌲</div>
+        <div class="subtitle">Mystery Animal Game</div>
+        
+        <!-- Intro Screen -->
+        <div id="introScreen" class="game-section active">
+            <div class="intro">
+                <strong>The Comeback Story:</strong><br><br>
+                For 150 years, Germany's big predators were gone. But about 25 years ago, something amazing happened. Wolves started sneaking back from Poland. Lynx returned from the mountain forests. Beavers rebuilt their river homes. Now they're thriving in Germany's forests! 🌍<br><br>
+                Your mission? Guess which animal is being described in each round. But be careful—there are tricky decoys!
+            </div>
+            
+            <button class="next-btn" onclick="startGame()">Let's Play! 🎮</button>
+        </div>
+        
+        <!-- Game Screens -->
+        <div id="gameScreens"></div>
+        
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="game-section">
+            <div class="results">
+                <h2>Game Complete! 🎉</h2>
+                <div class="results-score" id="finalScore"></div>
+                <div class="results-text" id="resultsMessage"></div>
+                <button class="reset-btn next-btn" onclick="location.reload()">Play Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const animals = [
+            {
+                name: "🐺 Wolf",
+                commonName: "Wolf",
+                clues: [
+                    "I disappeared from Germany 150 years ago, hunted out of existence.",
+                    "I migrated back from Poland around 2000 and now there are over 1,000 of me in German forests.",
+                    "I live in packs and hunt deer. My howl echoes through the night.",
+                    "I'm the apex predator that German forests have been waiting for."
+                ],
+                decoys: ["Wild Boar", "Red Fox", "Lynx"],
+                habitat: "Forests across Germany, especially eastern regions"
+            },
+            {
+                name: "🐱 Lynx",
+                commonName: "Lynx",
+                clues: [
+                    "I'm a big spotted cat with tufted ears that went extinct in Germany.",
+                    "I was gone for nearly 200 years, but I'm making a quiet comeback.",
+                    "I have thick fur, powerful legs, and I'm an expert hunter of forest deer.",
+                    "Unlike my cousin the wolf, I prefer to hunt alone in the shadows."
+                ],
+                decoys: ["Mountain Lion", "Wildcat", "Jaguar"],
+                habitat: "Bavarian and Black Forest mountains"
+            },
+            {
+                name: "🦫 Beaver",
+                commonName: "Beaver",
+                clues: [
+                    "I'm a rodent with a flat tail and I'm one of nature's greatest engineers.",
+                    "I build dams that reshape rivers and create wetlands. Fish and birds love my work!",
+                    "I was hunted for my fur, but now I'm back and restoring Germany's water ecosystems.",
+                    "I'm vegetarian and I fell trees to build my lodges."
+                ],
+                decoys: ["Otter", "Nutria", "Muskrat"],
+                habitat: "Rivers and streams throughout Germany"
+            },
+            {
+                name: "🦌 Red Deer",
+                commonName: "Red Deer",
+                clues: [
+                    "I'm one of Germany's most common large herbivores and have never really left.",
+                    "During rutting season, the males (stags) have enormous antlers and roar to claim territory.",
+                    "I'm a favorite meal for wolves and lynx, but there are plenty of me in the forests.",
+                    "I'm smaller than a moose but much larger than a roe deer."
+                ],
+                decoys: ["Moose", "Reindeer", "Caribou"],
+                habitat: "Forests across Germany"
+            },
+            {
+                name: "🐗 Wild Boar",
+                commonName: "Wild Boar",
+                clues: [
+                    "I'm a pig with thick, dark fur and tusks. Germans call me 'Wildschwein.'",
+                    "I've become very common in German forests and cities—sometimes too common!",
+                    "I dig and root around for acorns, mushrooms, and insects. I create muddy wallows.",
+                    "I've been in Germany forever, but my population has exploded recently."
+                ],
+                decoys: ["Warthog", "Peccary", "Badger"],
+                habitat: "Forests and rural areas across Germany"
+            }
+        ];
+        
+        let currentAnimalIndex = 0;
+        let currentClueIndex = 0;
+        let hasGuessed = false;
+        let score = 0;
+        let totalClues = 0;
+        
+        function startGame() {
+            document.getElementById('introScreen').classList.remove('active');
+            document.getElementById('gameScreens').innerHTML = '';
+            currentAnimalIndex = 0;
+            score = 0;
+            totalClues = 0;
+            showAnimal(currentAnimalIndex);
+        }
+        
+        function showAnimal(index) {
+            const animal = animals[index];
+            const html = `
+                <div class="game-section active animal-game">
+                    <div class="score">Animal ${index + 1} of ${animals.length}</div>
+                    <div class="animal-card">
+                        <div class="clue-number">Clue ${currentClueIndex + 1} of ${animal.clues.length}</div>
+                        <div class="clue ${currentClueIndex === 0 ? '' : ''}">${animal.clues[currentClueIndex]}</div>
+                        ${currentClueIndex < animal.clues.length - 1 ? `<button class="next-clue-btn" onclick="showNextClue(${index})">Show Next Clue 👀</button>` : ''}
+                    </div>
+                    
+                    <div>
+                        <strong style="color: #333; font-size: 14px;">What animal am I?</strong>
+                        <div class="guess-buttons">
+                            <button class="guess-btn" onclick="checkGuess('${animal.commonName}', ${index}, true)">✓ ${animal.commonName}</button>
+                            ${animal.decoys.map((decoy, i) => `<button class="guess-btn" onclick="checkGuess('${decoy}', ${index}, false)">${decoy}</button>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="feedback" id="feedback${index}"></div>
+                    
+                    <div id="nextSection${index}" style="display: none;">
+                        <div class="info-box">
+                            <strong>🌍 Habitat:</strong> ${animal.habitat}
+                        </div>
+                        <button class="next-btn" onclick="nextAnimal()">Next Animal →</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('gameScreens').innerHTML = html;
+        }
+        
+        function showNextClue(index) {
+            const animal = animals[index];
+            if (currentClueIndex < animal.clues.length - 1) {
+                currentClueIndex++;
+                showAnimal(index);
+            }
+        }
+        
+        function checkGuess(guess, index, isCorrect) {
+            const feedbackEl = document.getElementById(`feedback${index}`);
+            const nextSectionEl = document.getElementById(`nextSection${index}`);
+            
+            if (hasGuessed) return;
+            hasGuessed = true;
+            
+            if (isCorrect) {
+                feedbackEl.textContent = `✅ Correct! You got it in ${currentClueIndex + 1} clue${currentClueIndex === 0 ? '' : 's'}!`;
+                feedbackEl.className = 'feedback correct';
+                score += (animals[index].clues.length - currentClueIndex);
+            } else {
+                feedbackEl.textContent = `❌ Not quite! The answer is ${animals[index].commonName}.`;
+                feedbackEl.className = 'feedback wrong';
+            }
+            
+            totalClues += currentClueIndex + 1;
+            nextSectionEl.style.display = 'block';
+        }
+        
+        function nextAnimal() {
+            currentAnimalIndex++;
+            currentClueIndex = 0;
+            hasGuessed = false;
+            
+            if (currentAnimalIndex < animals.length) {
+                showAnimal(currentAnimalIndex);
+            } else {
+                showResults();
+            }
+        }
+        
+        function showResults() {
+            document.getElementById('gameScreens').innerHTML = '';
+            const percentage = Math.round((score / (animals.length * 4)) * 100);
+            let message = '';
+            let emoji = '';
+            
+            if (percentage >= 80) {
+                message = "You're a wildlife expert! You spotted those animals like a true naturalist! 🌿";
+                emoji = "🏆";
+            } else if (percentage >= 60) {
+                message = "Great job! You know your German wildlife well! 🌲";
+                emoji = "⭐";
+            } else if (percentage >= 40) {
+                message = "Good effort! Want to learn more about these amazing comeback stories? 📚";
+                emoji = "👍";
+            } else {
+                message = "Every expert started somewhere! These animals are sneaky! 🕵️";
+                emoji = "🌍";
+            }
+            
+            document.getElementById('finalScore').textContent = `${emoji} ${percentage}%`;
+            document.getElementById('resultsMessage').textContent = message;
+            document.getElementById('resultsScreen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
