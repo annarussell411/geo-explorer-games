@@ -170,6 +170,10 @@
             font-size: 14px;
         }
 
+        .guess-btn:disabled {
+            cursor: not-allowed;
+        }
+
         .guess-btn:hover {
             background: #2d5a3d;
             color: white;
@@ -438,13 +442,22 @@
             });
         }
 
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
         function renderGuessButtons() {
             const animal = animals[currentAnimalIndex];
             const guessButtons = document.getElementById('guessButtons');
             guessButtons.innerHTML = '';
             
-            // Shuffle options
-            const options = [...animal.options].sort(() => Math.random() - 0.5);
+            // Properly shuffle options using Fisher-Yates
+            const options = shuffleArray(animal.options);
             
             options.forEach(option => {
                 const btn = document.createElement('button');
